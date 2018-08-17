@@ -30,8 +30,7 @@ public class UsuarioController {
         }, json());
 
         post("/api/users", (req, res) -> usuarioService.criaUsuario(
-                req.queryParams("name"),
-                req.queryParams("email")
+            req.queryParams("nome"), req.queryParams("login"), req.queryParams("senha")
         ), json());
 
         post("/api/user/login",

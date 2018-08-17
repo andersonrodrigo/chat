@@ -17,23 +17,29 @@
     <title>HotChat</title>
       <script>
 							$('.alert').hide();
-							var urlBase = 'http://localhost:8086/'
+							var urlBase = 'http://localhost:8092/'
 							function cadastrarUsuario() {
 
-								if ($('#senha').val() != $('#senha2').val()) {
+								if ($('#senhaCadastro').val() != $('#senhaCadastro2').val()) {
 									alert('Senhas não conferem.')
 								} else {
-									$('#popupCadastro').modal('toggle')
+									$.post(urlBase + 'api/users', {
+						                  nome : $('#nomeCadastro').val(),
+						                  login : $('#loginCadastro').val(),
+						                  senha : $('#senhaCadastro').val()
+						                }, function(data, status) {
+						                  $('#btnFechaPopup').click()
+						                  alert('Cadastrado com sucesso!')
+						                });
+									
 								}
 							}
 
 							function fazLogin() {
-								debugger;
 								$.post(urlBase + 'api/user/login', {
 									login : $('#login').val(),
 									senha : $('#senha').val()
 								}, function(data, status) {
-									debugger;
 									if (data) {
 										document.location = 'chat.html'
 									} else {
@@ -75,15 +81,15 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Novo Usuário</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button"  id="btnFechaPopup" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
       <div class="form-group">
-        <input type="text" required class="form-control" id="nome"  aria-describedby="emailHelp" placeholder="Nome"> 
+        <input type="text" required class="form-control" id="nomeCadastro"  aria-describedby="emailHelp" placeholder="Nome"> 
         <br/>
-        <input type="email" required class="form-control" id="exampleUser"  aria-describedby="emailHelp" placeholder="Email"> 
+        <input type="email" required class="form-control" id="loginCadastro"  aria-describedby="emailHelp" placeholder="Email"> 
         <br/>
         <input type="password" required class="form-control" id="senhaCadastro"  aria-describedby="emailHelp" placeholder="Senha"> 
          <br/>

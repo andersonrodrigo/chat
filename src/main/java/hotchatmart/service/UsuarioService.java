@@ -13,8 +13,9 @@ public class UsuarioService {
      * @param password
      * @return
      */
-    public UsuarioEntity criaUsuario(final String login, final String password) {
+    public UsuarioEntity criaUsuario(final String nome, final String login, final String password) {
         final UsuarioEntity usuarioEntity = new UsuarioEntity();
+        usuarioEntity.setNome(nome);
         usuarioEntity.setLogin(login);
         usuarioEntity.setPassword(password);
         usuarios.add(usuarioEntity);

@@ -29,8 +29,8 @@ public class Chat {
 
     public static void main(final String[] args) {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        port(8086);
-        staticFiles.expireTime(600);
+        port(8093);
+        staticFiles.expireTime(60000);
         webSocket("/api/chat", ChatWebSocketHandler.class);
         cors();
         new UsuarioController(new UsuarioService());
@@ -73,7 +73,7 @@ public class Chat {
     //Builds a HTML element with a sender-name, a message, and a timestamp,
     private static String createHtmlMessageFromSender(final String sender, final String message) {
         return article(
-            b(sender + " says:"),
+            b(sender + " diz:"),
             span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new Date())),
             p(message)
         ).render();
