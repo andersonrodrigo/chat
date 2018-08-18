@@ -1,13 +1,18 @@
 package hotchatmart.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import hotchatmart.entity.UsuarioEntity;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class UsuarioService {
-    private List<UsuarioEntity> usuarios = new ArrayList<UsuarioEntity>();
-
+    private static List<UsuarioEntity> usuarios = new ArrayList<UsuarioEntity>();
+    private static long EXPIRES_IN = 720 * 60; // 15 min expiracao token
+    private static String SECRET = "5Uda*=ch=?uNuStAsT75e7?EsTA=?4HE";// chave jwt
     /**
      * @param login
      * @param password
@@ -28,13 +33,30 @@ public class UsuarioService {
      * @param password
      * @return
      */
-    public boolean login(final String email, final String password) {
+    public String login(final String email, final String password) {
         for (final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getLogin().equals(email) && usuarioEntity.getPassword().equals(password)) {
-                return true;
+                final String token = geraTokenUsuario(usuarioEntity);
+                usuarioEntity.setToken(token);
+                return token;
             }
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * 
+     * @param usuarioEntity
+     * @return
+     */
+    private String geraTokenUsuario(final UsuarioEntity usuarioEntity) {
+        return Jwts.builder()
+            .setSubject(usuarioEntity.getLogin())
+            .setIssuedAt(Calendar.getInstance().getTime())
+            .setExpiration(new Date(System.currentTimeMillis() + EXPIRES_IN * 1000))
+            .claim("user", usuarioEntity)
+            .signWith(SignatureAlgorithm.HS512, SECRET)
+            .compact();
     }
 
     /**
@@ -92,6 +114,20 @@ public class UsuarioService {
         usuarioEntity.setLogin(email);
         usuarioEntity.setPassword(password);
         return usuarioEntity;
+    }
+
+    /**
+     * 
+     * @param token
+     * @return
+     */
+    public static UsuarioEntity recuperaUsuarioByToken(final String token) {
+        for (final UsuarioEntity usuarioEntity : usuarios) {
+            if (usuarioEntity.getToken() != null && usuarioEntity.getToken().equals(token)) {
+                return usuarioEntity;
+            }
+        }
+        return null;
     }
 
 }

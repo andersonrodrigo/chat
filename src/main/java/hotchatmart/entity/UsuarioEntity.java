@@ -6,6 +6,7 @@ public class UsuarioEntity {
     private String nome;
     private String login;
     private String password;
+    private String token;
 
     public Long getId() {
         return id;
@@ -37,6 +38,14 @@ public class UsuarioEntity {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(final String token) {
+        this.token = token;
     }
 
     /**

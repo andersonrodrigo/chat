@@ -1,7 +1,7 @@
 //Establish the WebSocket connection and set up event handlers
 var host = 'localhost'
-var port = '8092'
-var webSocket = new WebSocket("ws://" + host + ":" + port + "/api/chat");
+var port = '8099'
+var webSocket = new WebSocket("ws://" + host + ":" + port + "/api/chat?token=" + 	localStorage.getItem('token'));
 webSocket.onmessage = function (msg) { updateChat(msg); };
 webSocket.onclose = function () { alert("WebSocket connection closed") };
 

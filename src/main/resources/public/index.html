@@ -17,7 +17,7 @@
     <title>HotChat</title>
       <script>
 							$('.alert').hide();
-							var urlBase = 'http://localhost:8092/'
+							var urlBase = 'http://localhost:8099/'
 							function cadastrarUsuario() {
 
 								if ($('#senhaCadastro').val() != $('#senhaCadastro2').val()) {
@@ -41,7 +41,8 @@
 									senha : $('#senha').val()
 								}, function(data, status) {
 									if (data) {
-										document.location = 'chat.html'
+										localStorage.setItem('token', data);
+										document.location = 'chat.html' 
 									} else {
 										alert('Senhas não conferem...')
 									}

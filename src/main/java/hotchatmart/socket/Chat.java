@@ -29,7 +29,7 @@ public class Chat {
 
     public static void main(final String[] args) {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        port(8093);
+        port(8099);
         staticFiles.expireTime(60000);
         webSocket("/api/chat", ChatWebSocketHandler.class);
         cors();

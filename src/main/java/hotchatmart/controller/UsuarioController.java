@@ -34,7 +34,9 @@ public class UsuarioController {
         ), json());
 
         post("/api/user/login",
-            (req, res) -> usuarioService.login(req.queryParams("login"), req.queryParams("senha")), json());
+            (req, res) ->  
+            usuarioService.login(req.queryParams("login"), req.queryParams("senha"))
+             , json());
 
         put("/api/users/:id", (req, res) -> usuarioService.atualizaUsuario(
                 req.params(":id"),
@@ -60,5 +62,6 @@ public class UsuarioController {
     private static ResponseTransformer json() {
         return UsuarioController::toJson;
     }
+
 
 }

@@ -5,6 +5,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
+import hotchatmart.entity.UsuarioEntity;
+import hotchatmart.service.UsuarioService;
+
 @WebSocket
 public class ChatWebSocketHandler {
 
@@ -12,7 +15,12 @@ public class ChatWebSocketHandler {
 
     @OnWebSocketConnect
     public void onConnect(final Session user) throws Exception {
-        final String username = "User" + Chat.nextUserNumber++;
+        final String token = user.getUpgradeRequest().getRequestURI().toString()
+                .substring(user.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
+                    user.getUpgradeRequest().getRequestURI().toString().length());
+        final UsuarioEntity usuarioEntity = UsuarioService.recuperaUsuarioByToken(token);
+        final String username = usuarioEntity.getNome();
+        Chat.nextUserNumber++;
         Chat.userUsernameMap.put(user, username);
         Chat.broadcastMessage(sender = "Server", msg = (username + " Conectado"));
     }
