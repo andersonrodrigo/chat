@@ -1,23 +1,34 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="/resources/bootstrap.min.css"
+	 >
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="/resources/jquery-3.3.1.slim.min.js"
+	 ></script>
+<script
+	src="/resources/popper.min.js"
+	 ></script>
+<script
+	src="/resources/bootstrap.min.js"
+	 ></script>
+<script
+	src="/resources/jquery.min.js"></script>
 
-    <title>HotChat</title>
-      <script>
+<title>HotChat</title>
+<script>
+
+      
 							$('.alert').hide();
-							var urlBase = 'http://localhost:8099/'
+							var urlBase = 'http://localhost:8124/'
 							function cadastrarUsuario() {
 
 								if ($('#senhaCadastro').val() != $('#senhaCadastro2').val()) {
@@ -28,8 +39,19 @@
 						                  login : $('#loginCadastro').val(),
 						                  senha : $('#senhaCadastro').val()
 						                }, function(data, status) {
-						                  $('#btnFechaPopup').click()
-						                  alert('Cadastrado com sucesso!')
+						                	if (data){
+						                		if (data == 'sucesso'){
+						                		 $('#btnFechaPopup').click()
+					                      alert('Cadastrado com sucesso!')
+					                       limpaTela()
+					                      }else{
+					                    	  alert(data)
+					                      }
+									
+						                	}else{
+						                		 alert('Erro ao Cadastrar!')
+						                	}
+						                 
 						                });
 									
 								}
@@ -41,72 +63,153 @@
 									senha : $('#senha').val()
 								}, function(data, status) {
 									if (data) {
-										localStorage.setItem('token', data);
+										store.setItem('usuario', data.nome);
+										store.setItem('token', data.token);
 										document.location = 'chat.html' 
 									} else {
 										alert('Senhas não conferem...')
 									}
 								});
 							}
+							
+							function limpaTela(){ 
+							$('#nomeCadastro').val(''),
+               $('#loginCadastro').val(''),
+               $('#senhaCadastro').val('')
+                $('#senhaCadastro2').val('')
+							}
+               
+							
+						      function storageFactory(storage) {
+						          let inMemoryStorage = {}; 
+
+						          function isSupported() {
+						            try {
+						              const key = "__some_random_key_you_are_not_going_to_use__";
+						              storage.setItem(key, key);
+						              storage.removeItem(key);
+						              return true;
+						            } catch (e) {
+						              return false;
+						            }
+						          }
+
+						          function getItem(key) {
+						            if (isSupported()) {
+						              return storage.getItem(key);
+						            }
+						            return inMemoryStorage[key] || null;
+						          }
+
+						          function setItem(key, value) {
+						            if (isSupported()) {
+						              storage.setItem(key, value);
+						            } else {
+						              inMemoryStorage[key] = value;
+						            }
+						          }
+
+						          function removeItem(key) {
+						            if (isSupported()) {
+						              storage.removeItem(key);
+						            } else {
+						              delete inMemoryStorage[key];
+						            }
+						          }
+
+						          function clear(key) {
+						            if (isSupported()) {
+						              storage.clear();
+						            } else {
+						              inMemoryStorage = {};
+						            }
+						          }
+						          
+						          function key(n) {
+						            if (isSupported()) {
+						              return storage.key(n);
+						            } else {
+						               return Object.keys(inMemoryStorage)[n] || null;
+						            }
+						          }
+
+						          return {
+						            getItem,
+						            setItem,
+						            removeItem,
+						            clear,
+						            key,
+						          };
+						        }
+						       var store = storageFactory(localStorage);
 						</script>
-  </head>
-  <body>
-    <h1 align="center">Bem Vindo</h1>
+</head>
+<body>
+	<h1 align="center">Bem Vindo</h1>
 
 	<div class="card" style="width: 40%; margin-left: 29%;">
 		<div class="card-body">
-			 
-				<div class="form-group">
-					 
-					<input type="text" class="form-control" id="login"
-						aria-describedby="emailHelp" placeholder="Usuário"> 
-						<small  id="emailHelp" class="form-text text-muted"></small>
-				</div>
-				<div class="form-group">
-					<input
-						type="password" class="form-control" id="senha"
-						placeholder="Senha">
-				</div>
-				  <div class="form-group" align="center">
-				    <button type="submit" class="btn btn-primary" onclick="fazLogin()">Entrar</button>
-				      <small data-toggle="modal" data-target="#popupCadastro" id="novoCadastro" class="form-text text-muted">Novo cadastro</small>
-				</div>
-		 
+
+			<div class="form-group">
+
+				<input type="text" class="form-control" id="login"
+					aria-describedby="emailHelp" placeholder="Login"> <small
+					id="emailHelp" class="form-text text-muted"></small>
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control" id="senha"
+					placeholder="Senha">
+			</div>
+			<div class="form-group" align="center">
+				<button type="submit" class="btn btn-primary" onclick="fazLogin()">Entrar</button>
+				<BR /> <BR /> <small data-toggle="modal"
+					data-target="#popupCadastro" id="novoCadastro"
+					class="form-text text-muted">Novo cadastro</small>
+			</div>
+
 		</div>
 	</div>
 
-<!-- Modal -->
-<div class="modal fade" id="popupCadastro" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-  <form>
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Novo Usuário</h5>
-        <button type="button"  id="btnFechaPopup" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      <div class="form-group">
-        <input type="text" required class="form-control" id="nomeCadastro"  aria-describedby="emailHelp" placeholder="Nome"> 
-        <br/>
-        <input type="email" required class="form-control" id="loginCadastro"  aria-describedby="emailHelp" placeholder="Email"> 
-        <br/>
-        <input type="password" required class="form-control" id="senhaCadastro"  aria-describedby="emailHelp" placeholder="Senha"> 
-         <br/>
-        <input type="password" required class="form-control" id="senhaCadastro2"  aria-describedby="emailHelp" placeholder="Repita Senha"> 
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-        <button type="button" class="btn btn-primary" onclick="cadastrarUsuario()">Salvar</button>
-      </div>
-    </div>
-  </div>
-  </form>
-</div>
+	<!-- Modal -->
+	<div class="modal fade" id="popupCadastro" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+		<form>
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLongTitle">Novo
+							Usuário</h5>
+						<button type="button" id="btnFechaPopup" class="close"
+							data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<input type="text" required class="form-control"
+								id="nomeCadastro" aria-describedby="emailHelp"
+								placeholder="Nome"> <br /> <input type="email" required
+								class="form-control" id="loginCadastro"
+								aria-describedby="emailHelp" placeholder="Login"> <br />
+							<input type="password" required class="form-control"
+								id="senhaCadastro" aria-describedby="emailHelp"
+								placeholder="Senha"> <br /> <input type="password"
+								required class="form-control" id="senhaCadastro2"
+								aria-describedby="emailHelp" placeholder="Repita Senha">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Fechar</button>
+						<button type="button" class="btn btn-primary"
+							onclick="cadastrarUsuario()">Salvar</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
 
 
-  
-  </body>
+
+</body>
 </html>

@@ -10,6 +10,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class UsuarioService {
+    /**
+     * Lista de usuarios cadastrados
+     */
     private static List<UsuarioEntity> usuarios = new ArrayList<UsuarioEntity>();
     private static long EXPIRES_IN = 720 * 60; // 15 min expiracao token
     private static String SECRET = "5Uda*=ch=?uNuStAsT75e7?EsTA=?4HE";// chave jwt
@@ -33,12 +36,15 @@ public class UsuarioService {
      * @param password
      * @return
      */
-    public String login(final String email, final String password) {
+    public UsuarioEntity login(final String email, final String password) {
         for (final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getLogin().equals(email) && usuarioEntity.getPassword().equals(password)) {
                 final String token = geraTokenUsuario(usuarioEntity);
                 usuarioEntity.setToken(token);
-                return token;
+                final UsuarioEntity usuarioRetorno = new UsuarioEntity();
+                usuarioRetorno.setToken(token);
+                usuarioRetorno.setNome(usuarioEntity.getNome());
+                return usuarioRetorno;
             }
         }
         return null;

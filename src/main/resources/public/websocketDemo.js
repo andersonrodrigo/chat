@@ -1,7 +1,9 @@
 //Establish the WebSocket connection and set up event handlers
 var host = 'localhost'
-var port = '8099'
-var webSocket = new WebSocket("ws://" + host + ":" + port + "/api/chat?token=" + 	localStorage.getItem('token'));
+var port = '8124'
+var usuarioLogado = window.localStorage.getItem('usuario')
+  $('#usuario').html(usuarioLogado)
+var webSocket = new WebSocket("ws://" + host + ":" + port + "/api/chat?token=" + window.localStorage.getItem('token')	);
 webSocket.onmessage = function (msg) { updateChat(msg); };
 webSocket.onclose = function () { alert("WebSocket connection closed") };
 
@@ -28,8 +30,13 @@ function updateChat(msg) {
     var data = JSON.parse(msg.data);
     insert("chat", data.userMessage);
     id("userlist").innerHTML = "";
+  
     data.userlist.forEach(function (user) {
-        insert("userlist", "<li>" + user + "</li>");
+    	if (usuarioLogado == user){
+    		insert("userlist", "<li><font color='red'><B>" + user + "</B></font></li>");
+    	}else{
+    		insert("userlist", "<li>" + user + "</li>");
+    	}
     });
 }
 

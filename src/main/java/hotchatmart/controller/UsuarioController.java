@@ -29,9 +29,16 @@ public class UsuarioController {
             return new ResponseError("No user with id '%s' found", id);
         }, json());
 
-        post("/api/users", (req, res) -> usuarioService.criaUsuario(
-            req.queryParams("nome"), req.queryParams("login"), req.queryParams("senha")
-        ), json());
+        post("/api/users", (req, res) -> {
+            final UsuarioEntity usuarioExistente = usuarioService.getUser(req.queryParams("login"));
+            if (usuarioExistente != null) {
+                return "Já existe um usuário com o Login informado: " + req.queryParams("login");
+            }
+            usuarioService.criaUsuario(req.queryParams("nome"), req.queryParams("login"),
+                req.queryParams("senha")
+            );
+            return "sucesso";
+        }, json());
 
         post("/api/user/login",
             (req, res) ->  

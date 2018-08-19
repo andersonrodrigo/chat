@@ -29,8 +29,8 @@ public class Chat {
 
     public static void main(final String[] args) {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        port(8099);
-        staticFiles.expireTime(60000);
+        port(8124);
+        staticFiles.expireTime(6000000);
         webSocket("/api/chat", ChatWebSocketHandler.class);
         cors();
         new UsuarioController(new UsuarioService());
@@ -57,13 +57,39 @@ public class Chat {
      * @param sender
      * @param message
      */
-    public static void broadcastMessage(final String sender, final String message) {
+    public static void broadcastMessage(final String sender,
+                                        final String message) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
                 session.getRemote().sendString(String.valueOf(new JSONObject()
                     .put("userMessage", createHtmlMessageFromSender(sender, message))
                     .put("userlist", userUsernameMap.values())
+
                 ));
+            } catch (final Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 
+     * @param sender
+     * @param message
+     * @param destinatario
+     */
+    public static void enviaHistorico(final String sender,
+                                      final String message,
+                                      final String destinatario) {
+        userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
+            try {
+                if (userUsernameMap.get(session).equals(destinatario)) {
+                    session.getRemote()
+                        .sendString(String.valueOf(
+                            new JSONObject().put("userMessage", createHtmlMessageFromSender(sender, message))
+                                .put("userlist", userUsernameMap.values())));
+                }
+
             } catch (final Exception e) {
                 e.printStackTrace();
             }
@@ -73,8 +99,8 @@ public class Chat {
     //Builds a HTML element with a sender-name, a message, and a timestamp,
     private static String createHtmlMessageFromSender(final String sender, final String message) {
         return article(
-            b(sender + " diz:"),
-            span(attrs(".timestamp"), new SimpleDateFormat("HH:mm:ss").format(new Date())),
+            b(sender),
+            span(attrs(".timestamp"), new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date())),
             p(message)
         ).render();
     }
