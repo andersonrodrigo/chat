@@ -28,12 +28,51 @@ li {
     margin: 5px 0;
 }
 
+#sair{
+	 left: 80%;
+}
+
+#instrucoes{
+	  overflow: auto;
+    margin: 0 0 5px 0;
+    position: fixed;
+    /* left: 50%; */
+    list-style: none;
+    margin-left: 250px;
+    background: #f0f0f9;
+    padding: 5px 10px;
+    width: 50%;
+    top: 73%;
+}
+
 #chatControls {
-    overflow: auto;
-    margin: 0 0 5px 0
+       overflow: auto;
+    margin: 0 0 5px 0;
+    position: fixed;
+    /* left: 50%; */
+    list-style: none;
+    margin-left: 250px;
+    background: #f0f0f9;
+    padding: 5px 10px;
+    width: 50%;
+    top: 73%;
 }
 
 #userlist {
+    position: fixed;
+    list-style: none;
+    background: #f0f0f9;
+    width: 15%;
+}
+
+.listaUsuarios{
+    list-style: none;
+    padding: 5px 10px;
+    width: 150px;
+    top: 10px;
+}
+
+#userlistAll {
     position: fixed;
     left: 50%;
     list-style: none;
@@ -44,8 +83,8 @@ li {
     top: 70px;
 }
 
-.listaUsuarios{
-	position: fixed;
+.listaUsuariosAll{
+  position: fixed;
     left: 50%;
     list-style: none;
     margin-left: 250px;
@@ -54,6 +93,7 @@ li {
     width: 150px;
     top: 10px;
 }
+
 
 #chat p {
     margin: 5px 0;
@@ -74,6 +114,14 @@ li {
     border-left: 5px solid #aaa;
     position: relative;
     word-wrap: break-word;
+}
+
+#chat {
+	    margin-left: 94%;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    height: 215px;
 }
 
 #chat article:first-of-type {

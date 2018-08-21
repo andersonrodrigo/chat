@@ -28,13 +28,13 @@
 
       
 							$('.alert').hide();
-							var urlBase = 'http://localhost:8124/'
+							var urlBase = 'http://localhost:8081/'
 							function cadastrarUsuario() {
 
 								if ($('#senhaCadastro').val() != $('#senhaCadastro2').val()) {
 									alert('Senhas não conferem.')
 								} else {
-									$.post(urlBase + 'api/users', {
+									$.post(urlBase + 'api/user', {
 						                  nome : $('#nomeCadastro').val(),
 						                  login : $('#loginCadastro').val(),
 						                  senha : $('#senhaCadastro').val()
@@ -63,7 +63,8 @@
 									senha : $('#senha').val()
 								}, function(data, status) {
 									if (data) {
-										store.setItem('usuario', data.nome);
+										store.setItem('usuarioId', data.id);
+										store.setItem('usuarioNome', data.nome);
 										store.setItem('token', data.token);
 										document.location = 'chat.html' 
 									} else {

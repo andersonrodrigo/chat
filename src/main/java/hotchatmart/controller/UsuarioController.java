@@ -17,9 +17,9 @@ public class UsuarioController {
 
     public UsuarioController(final UsuarioService usuarioService) {
 
-        get("/api/users", (req, res) -> usuarioService.getAllUsuarios(), json());
+        get("/api/user/listAll", (req, res) -> usuarioService.getAllUsuarios(), json());
 
-        get("/api/users/:id", (req, res) -> {
+        get("/api/user/:id", (req, res) -> {
             final String id = req.params(":id");
             final UsuarioEntity user = usuarioService.getUser(id);
             if (user != null) {
@@ -29,7 +29,7 @@ public class UsuarioController {
             return new ResponseError("No user with id '%s' found", id);
         }, json());
 
-        post("/api/users", (req, res) -> {
+        post("/api/user", (req, res) -> {
             final UsuarioEntity usuarioExistente = usuarioService.getUser(req.queryParams("login"));
             if (usuarioExistente != null) {
                 return "Já existe um usuário com o Login informado: " + req.queryParams("login");
@@ -45,7 +45,7 @@ public class UsuarioController {
             usuarioService.login(req.queryParams("login"), req.queryParams("senha"))
              , json());
 
-        put("/api/users/:id", (req, res) -> usuarioService.atualizaUsuario(
+        put("/api/user/:id", (req, res) -> usuarioService.atualizaUsuario(
                 req.params(":id"),
                 req.queryParams("name"),
                 req.queryParams("email"),

@@ -30,18 +30,30 @@
   <body>
     
 
-     
+<div id="instrucoes">
+Selecione algum contato para iniciar uma conversa...
+</div>
+      <div>Bem vindo, <span id="usuario"/></div>
+        <div onclick="document.location = 'index.html'" id="sair">Sair</div>
+      
 				<div id="chatControls">
-				<div>Bem vindo, <span id="usuario"/></div>
+			 <div>Enviar mensagem para: <span id="usuarioDestino"/></div>
 					<input id="message" placeholder="Escreva sua Mensagem">
 					<button id="send">Enviar</button>
 				</div>
 				<div>
-				<div class="listaUsuarios">Lista de contatos Online:</div>
+				<div class="listaUsuarios">Lista de contatos OnLine:</div>
 					<ul id="userlist">
 						<!-- Built by JS -->
 					</ul>
 				</div>
+			 
+			 
+			 <div class="listaUsuariosAll">Lista de Todos Contatos:</div>
+          <ul id="userlistAll">
+            <!-- Built by JS -->
+          </ul>
+        </div>
 			 
 				<div id="chat">
 					<!-- Built by JS -->

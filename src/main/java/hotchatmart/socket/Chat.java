@@ -29,8 +29,8 @@ public class Chat {
 
     public static void main(final String[] args) {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        port(8124);
-        staticFiles.expireTime(6000000);
+        port(8081);
+        staticFiles.expireTime(-1);
         webSocket("/api/chat", ChatWebSocketHandler.class);
         cors();
         new UsuarioController(new UsuarioService());
@@ -58,12 +58,14 @@ public class Chat {
      * @param message
      */
     public static void broadcastMessage(final String sender,
-                                        final String message) {
+                                        final String message,
+                                        final String tipoMensagem) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
                 session.getRemote().sendString(String.valueOf(new JSONObject()
                     .put("userMessage", createHtmlMessageFromSender(sender, message))
                     .put("userlist", userUsernameMap.values())
+                    .put("tipoMensagem", tipoMensagem)
 
                 ));
             } catch (final Exception e) {
@@ -78,16 +80,22 @@ public class Chat {
      * @param message
      * @param destinatario
      */
-    public static void enviaHistorico(final String sender,
+    public static void enviaMensageDireta(final String sender,
                                       final String message,
-                                      final String destinatario) {
+                                          final String destinatario,
+                                          final String tipoMensagem) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
+                System.out.println(destinatario);
+                System.out.println(sender);
                 if (userUsernameMap.get(session).equals(destinatario)) {
                     session.getRemote()
                         .sendString(String.valueOf(
                             new JSONObject().put("userMessage", createHtmlMessageFromSender(sender, message))
-                                .put("userlist", userUsernameMap.values())));
+                                .put("userlist", userUsernameMap.values())
+                                .put("tipoMensagem", tipoMensagem)
+                                .put("destinatario", destinatario.split("\\|")[0])
+                                .put("sender", sender.split("\\|")[0])));
                 }
 
             } catch (final Exception e) {

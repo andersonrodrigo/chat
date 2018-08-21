@@ -25,6 +25,7 @@ public class UsuarioService {
         final UsuarioEntity usuarioEntity = new UsuarioEntity();
         usuarioEntity.setNome(nome);
         usuarioEntity.setLogin(login);
+        usuarioEntity.setId(System.currentTimeMillis());
         usuarioEntity.setPassword(password);
         usuarios.add(usuarioEntity);
         return usuarioEntity;
@@ -44,6 +45,7 @@ public class UsuarioService {
                 final UsuarioEntity usuarioRetorno = new UsuarioEntity();
                 usuarioRetorno.setToken(token);
                 usuarioRetorno.setNome(usuarioEntity.getNome());
+                usuarioRetorno.setId(usuarioEntity.getId());
                 return usuarioRetorno;
             }
         }
@@ -70,7 +72,15 @@ public class UsuarioService {
      * @return
      */
     public List<UsuarioEntity> getAllUsuarios() {
-        return usuarios;
+        final List<UsuarioEntity> retorno = new ArrayList<UsuarioEntity>();
+        for (final UsuarioEntity usuarioEntity : usuarios) {
+            final UsuarioEntity copiaUsuario = new UsuarioEntity();
+            copiaUsuario.setLogin(usuarioEntity.getLogin());
+            copiaUsuario.setNome(usuarioEntity.getNome());
+            copiaUsuario.setId(usuarioEntity.getId());
+            retorno.add(copiaUsuario);
+        }
+        return retorno;
     }
 
     /**
@@ -130,6 +140,20 @@ public class UsuarioService {
     public static UsuarioEntity recuperaUsuarioByToken(final String token) {
         for (final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getToken() != null && usuarioEntity.getToken().equals(token)) {
+                return usuarioEntity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * @param userDestino
+     * @return
+     */
+    public static UsuarioEntity recuperaUsuarioById(final String id) {
+        for (final UsuarioEntity usuarioEntity : usuarios) {
+            if (usuarioEntity.getId() != null && usuarioEntity.getId().equals(Long.valueOf(id))) {
                 return usuarioEntity;
             }
         }
