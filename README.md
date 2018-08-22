@@ -4,10 +4,21 @@
 A Aplicação foi montada utilizando o frame work spark.
 Esta rodando em memoria. (Sem Banco de Dados)
 ###Para rodar execute:
+
+
 *mvn clean package
+
+
 Ache o JAR gerado e rode 
+
+
 *java -jar hotchatmart-1.0-SNAPSHOT.jar
-Assim será aberto um servidor jetty na porta 8124
+
+
+Assim será aberto um servidor jetty na porta 8081.
+Acesse de um navegador:
+
+http://localhost:8081
 
 Será aberta uma tela para login, onde existirá a opção Novo Cadastro.
 Ao fazer um novo cadastro este usuário ficará em memoria.
