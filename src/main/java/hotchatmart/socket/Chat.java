@@ -25,6 +25,10 @@ import hotchatmart.controller.UsuarioController;
 import hotchatmart.entity.UsuarioEntity;
 import hotchatmart.service.UsuarioService;
 import spark.Filter;
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
 
 /**
  * Classe principal, esta configurada no Manifest para iniciar o JAR. Ela vai
@@ -33,8 +37,19 @@ import spark.Filter;
  * @author andersonaugustorodrigosilva
  *
  */
+@SwaggerDefinition(host = "localhost:8081", 
+info = @Info(description = "Exemplo de Chat", 
+version = "V1.0", 
+title = "Sala de Bate Papo", 
+contact = @Contact(name = "Anderson", url = "https://github.com/andersonrodrigo") ) , 
+schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS }, 
+consumes = { "application/json" }, 
+produces = { "application/json" }, 
+tags = { @Tag(name = "swagger") })
 public class Chat {
 
+	
+	
 	static Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();// Mapa com todas as sessoes ativas do
 																			// websocket
 

@@ -28,6 +28,7 @@ public class UsuarioController {
 	 */
     public UsuarioController( final UsuarioService usuarioService) {
 
+    	
 		get("/api/user/listAll", (req, res) -> UsuarioService.getAllUsuarios(), json());
 
         get("/api/user/:id", (req, res) -> {
