@@ -11,7 +11,10 @@ import static spark.Spark.staticFiles;
 import static spark.Spark.webSocket;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,22 +22,36 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONObject;
 
 import hotchatmart.controller.UsuarioController;
+import hotchatmart.entity.UsuarioEntity;
 import hotchatmart.service.UsuarioService;
 import spark.Filter;
+
+/**
+ * Classe principal, esta configurada no Manifest para iniciar o JAR. Ela vai
+ * abrir um Servidor JERSEY na porta 8081 para receber as requisicoes
+ * 
+ * @author andersonaugustorodrigosilva
+ *
+ */
 public class Chat {
 
-    // this map is shared between sessions and threads, so it needs to be thread-safe (http://stackoverflow.com/a/2688817)
-    static Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();
-    static int nextUserNumber = 1; //Assign to username for next connecting user
+	static Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();// Mapa com todas as sessoes ativas do
+																			// websocket
 
-    public static void main(final String[] args) {
-        staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        port(8081);
-        staticFiles.expireTime(-1);
-        webSocket("/api/chat", ChatWebSocketHandler.class);
-        cors();
-        new UsuarioController(new UsuarioService());
-        init();
+	/**
+	 * Metodo principal, ele sobe o servidor, abre o soket e configura os endpoints
+	 * 
+	 * @param args
+	 */
+    public static void main( final String[] args) {
+		staticFiles.location("/public"); // informo o caminho de onde o servidor buscara as paginas html
+		port(8081);// Porta que será aberta o jersey
+		staticFiles.expireTime(-1);// Tempo de cache dos arquivos HTML, passei -1 para nao ter cache
+		webSocket("/api/chat", ChatWebSocketHandler.class);// Configuro o endPoint do usuario
+		cors();// Habilito as Requisicoes de dominio para o servidor porder ser acessado fora
+				// do dominio padrao.
+		new UsuarioController(new UsuarioService());// Inicio o controller
+		init();// Inicio o jersey
     }
 
     /**
@@ -52,65 +69,108 @@ public class Chat {
 
     }
 
-    /**
-     * 
-     * @param sender
-     * @param message
-     */
-    public static void broadcastMessage(final String sender,
-                                        final String message,
-                                        final String tipoMensagem) {
+	/**
+	 * Metodo para enviar mensagem para todos os usuarios
+	 * 
+	 * @param usuarioEntity:
+	 *            Usuario que esta enviando a mensagem
+	 * @param message:
+	 *            Mensagem que esta sendo enviada
+	 * @param tipoMensagem:
+	 *            Tipo da Mensagem: 1:Conectou no servidor, 2: Desconectou 3:
+	 *            Mensagem Normal
+	 */
+    public static void broadcastMessage( final UsuarioEntity usuarioEntity,
+                                         final String message,
+                                         final String tipoMensagem) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
                 session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("userMessage", createHtmlMessageFromSender(sender, message))
-                    .put("userlist", userUsernameMap.values())
+                    .put("userMessage", createHtmlMessageFromSender(usuarioEntity.getLogin(), message))
+                    .put("userlist", carregaListaDeContatos(usuarioEntity.getId()))
                     .put("tipoMensagem", tipoMensagem)
 
                 ));
-            } catch (final Exception e) {
+            } catch ( final Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
-    /**
-     * 
-     * @param sender
-     * @param message
-     * @param destinatario
-     */
-    public static void enviaMensageDireta(final String sender,
-                                      final String message,
-                                          final String destinatario,
-                                          final String tipoMensagem) {
+	/**
+	 * Metodo para enviar uma mensagem direta de um usuario para outro
+	 * 
+	 * @param sender:
+	 *            Usuario que esta enviando a mensagem
+	 * @param message:
+	 *            Mensagem enviada
+	 * @param destinatario:
+	 *            Usuario para que será enviada a mensagem
+	 * @param tipoMensagem:
+	 *            Tipo da Mensagem: 1:Conectou no servidor, 2: Desconectou 3:
+	 *            Mensagem Normal
+	 */
+    public static void enviaMensageDireta( final String sender,
+                                       final String message,
+                                           final String destinatario,
+                                           final String tipoMensagem) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
-                System.out.println(destinatario);
-                System.out.println(sender);
                 if (userUsernameMap.get(session).equals(destinatario)) {
                     session.getRemote()
                         .sendString(String.valueOf(
-                            new JSONObject().put("userMessage", createHtmlMessageFromSender(sender, message))
-                                .put("userlist", userUsernameMap.values())
+									new JSONObject()
+											.put("userMessage",
+													createHtmlMessageFromSender(sender.split("\\|")[1], message))
+                                .put("userlist", carregaListaDeContatos(Long.valueOf(sender.split("\\|")[0])))
                                 .put("tipoMensagem", tipoMensagem)
                                 .put("destinatario", destinatario.split("\\|")[0])
                                 .put("sender", sender.split("\\|")[0])));
                 }
 
-            } catch (final Exception e) {
+            } catch ( final Exception e) {
                 e.printStackTrace();
-            }
+			}
         });
     }
 
-    //Builds a HTML element with a sender-name, a message, and a timestamp,
-    private static String createHtmlMessageFromSender(final String sender, final String message) {
+    /**
+	 * Metodo para montar a lista de usuarios que será enviada na tela
+	 * 
+	 * @return Lista de usuarios
+	 */
+    private static List<UsuarioEntity> carregaListaDeContatos( final Long id) {
+		final List<UsuarioEntity> listaRetorno = new ArrayList<UsuarioEntity>();
+		final List<UsuarioEntity> listaTodosUsuarios = UsuarioService.getAllUsuarios();
+		for (final Iterator<UsuarioEntity> iterator = listaTodosUsuarios.iterator(); iterator.hasNext();) {
+			final UsuarioEntity usuarioEntity = iterator.next();
+			boolean online = false;
+			for (final Map.Entry<Session, String> pair : userUsernameMap.entrySet()) {
+				if (usuarioEntity.getNome().equals(pair.getValue().split("\\|")[1])) {
+					online = true;
+					break;
+				}
+			}
+			usuarioEntity.setOnline(online);
+			listaRetorno.add(usuarioEntity);
+		}
+		return listaRetorno;
+    }
+
+	/**
+	 * Metodo para montar o HTML da Mensagem que será exibida.
+	 * 
+	 * @param sender
+	 * @param message
+	 * @return
+	 */
+    private static String createHtmlMessageFromSender( final String sender,  final String message) {
         return article(
             b(sender),
             span(attrs(".timestamp"), new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date())),
             p(message)
         ).render();
     }
+
 
 }

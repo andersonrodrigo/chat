@@ -7,6 +7,7 @@ public class UsuarioEntity {
     private String login;
     private String password;
     private String token;
+    private boolean online;
 
     public Long getId() {
         return id;
@@ -46,6 +47,14 @@ public class UsuarioEntity {
 
     public void setToken(final String token) {
         this.token = token;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(final boolean online) {
+        this.online = online;
     }
 
     /**

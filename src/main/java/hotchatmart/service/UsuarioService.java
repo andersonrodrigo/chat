@@ -9,20 +9,28 @@ import hotchatmart.entity.UsuarioEntity;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/**
+ * Classe de serviço do usuario
+ * 
+ * @author andersonaugustorodrigosilva
+ *
+ */
 public class UsuarioService {
-    /**
-     * Lista de usuarios cadastrados
-     */
-    private static List<UsuarioEntity> usuarios = new ArrayList<UsuarioEntity>();
+
+	private static List<UsuarioEntity> usuarios = new ArrayList<UsuarioEntity>();// Lista de usuarios cadastrados
     private static long EXPIRES_IN = 720 * 60; // 15 min expiracao token
     private static String SECRET = "5Uda*=ch=?uNuStAsT75e7?EsTA=?4HE";// chave jwt
+
     /**
-     * @param login
-     * @param password
-     * @return
-     */
-    public UsuarioEntity criaUsuario(final String nome, final String login, final String password) {
-        final UsuarioEntity usuarioEntity = new UsuarioEntity();
+	 * Metodo para criar o usuario, como nao uso banco de dados a lista de usuarios
+	 * é o banco
+	 * 
+	 * @param login
+	 * @param password
+	 * @return
+	 */
+    public UsuarioEntity criaUsuario( final String nome,  final String login,  final String password) {
+         final UsuarioEntity usuarioEntity = new UsuarioEntity();
         usuarioEntity.setNome(nome);
         usuarioEntity.setLogin(login);
         usuarioEntity.setId(System.currentTimeMillis());
@@ -32,17 +40,19 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param email
-     * @param password
-     * @return
-     */
-    public UsuarioEntity login(final String email, final String password) {
-        for (final UsuarioEntity usuarioEntity : usuarios) {
+	 * Metodo para fazer o login. Eu recupero o usuario e volto um novo objeto de
+	 * usuario sem a senha como resposta para o servidor
+	 * 
+	 * @param email
+	 * @param password
+	 * @return
+	 */
+    public UsuarioEntity login( final String email,  final String password) {
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getLogin().equals(email) && usuarioEntity.getPassword().equals(password)) {
-                final String token = geraTokenUsuario(usuarioEntity);
+                 final String token = geraTokenUsuario(usuarioEntity);
                 usuarioEntity.setToken(token);
-                final UsuarioEntity usuarioRetorno = new UsuarioEntity();
+                 final UsuarioEntity usuarioRetorno = new UsuarioEntity();
                 usuarioRetorno.setToken(token);
                 usuarioRetorno.setNome(usuarioEntity.getNome());
                 usuarioRetorno.setId(usuarioEntity.getId());
@@ -53,11 +63,12 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param usuarioEntity
-     * @return
-     */
-    private String geraTokenUsuario(final UsuarioEntity usuarioEntity) {
+	 * Metodo para gerar o token JWT do usuario
+	 * 
+	 * @param usuarioEntity
+	 * @return
+	 */
+    private String geraTokenUsuario( final UsuarioEntity usuarioEntity) {
         return Jwts.builder()
             .setSubject(usuarioEntity.getLogin())
             .setIssuedAt(Calendar.getInstance().getTime())
@@ -65,16 +76,17 @@ public class UsuarioService {
             .claim("user", usuarioEntity)
             .signWith(SignatureAlgorithm.HS512, SECRET)
             .compact();
-    }
+	}
 
     /**
-     * 
-     * @return
-     */
-    public List<UsuarioEntity> getAllUsuarios() {
-        final List<UsuarioEntity> retorno = new ArrayList<UsuarioEntity>();
-        for (final UsuarioEntity usuarioEntity : usuarios) {
-            final UsuarioEntity copiaUsuario = new UsuarioEntity();
+	 * Metodo para retornar todos os usuarios
+	 * 
+	 * @return
+	 */
+    public static List<UsuarioEntity> getAllUsuarios() {
+         final List<UsuarioEntity> retorno = new ArrayList<UsuarioEntity>();
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
+             final UsuarioEntity copiaUsuario = new UsuarioEntity();
             copiaUsuario.setLogin(usuarioEntity.getLogin());
             copiaUsuario.setNome(usuarioEntity.getNome());
             copiaUsuario.setId(usuarioEntity.getId());
@@ -84,12 +96,13 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param id
-     * @return
-     */
-    public UsuarioEntity getUser(final Long id) {
-        for (final UsuarioEntity usuarioEntity : usuarios) {
+	 * Metodo para retornar o usuario pelo id
+	 * 
+	 * @param id
+	 * @return
+	 */
+    public UsuarioEntity getUser( final Long id) {
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getId().intValue() == id.intValue()) {
                 return usuarioEntity;
             }
@@ -98,12 +111,13 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param login
-     * @return
-     */
-    public UsuarioEntity getUser(final String login) {
-        for (final UsuarioEntity usuarioEntity : usuarios) {
+	 * Recupera o usuario pelo login
+	 * 
+	 * @param login
+	 * @return
+	 */
+    public UsuarioEntity getUser( final String login) {
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getLogin().equals(login)) {
                 return usuarioEntity;
             }
@@ -112,17 +126,18 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param id
-     * @param name
-     * @param email
-     * @return
-     */
-    public UsuarioEntity atualizaUsuario(final String id,
-                                         final String name,
-                                         final String email,
-                                         final String password) {
-        final UsuarioEntity usuarioEntity = getUser(email);
+	 * Atualiza o usuario
+	 * 
+	 * @param id
+	 * @param name
+	 * @param email
+	 * @return
+	 */
+    public UsuarioEntity atualizaUsuario( final String id,
+                                          final String name,
+                                          final String email,
+                                          final String password) {
+         final UsuarioEntity usuarioEntity = getUser(email);
         if (usuarioEntity == null) {
             throw new IllegalArgumentException("Usuario não encontrado:" + email);
         }
@@ -133,12 +148,13 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param token
-     * @return
-     */
-    public static UsuarioEntity recuperaUsuarioByToken(final String token) {
-        for (final UsuarioEntity usuarioEntity : usuarios) {
+	 * Recupera o usuario pelo token
+	 * 
+	 * @param token
+	 * @return
+	 */
+    public static UsuarioEntity recuperaUsuarioByToken( final String token) {
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getToken() != null && usuarioEntity.getToken().equals(token)) {
                 return usuarioEntity;
             }
@@ -147,12 +163,13 @@ public class UsuarioService {
     }
 
     /**
-     * 
-     * @param userDestino
-     * @return
-     */
-    public static UsuarioEntity recuperaUsuarioById(final String id) {
-        for (final UsuarioEntity usuarioEntity : usuarios) {
+	 * Recupera usuario pelo id
+	 * 
+	 * @param userDestino
+	 * @return
+	 */
+    public static UsuarioEntity recuperaUsuarioById( final String id) {
+        for ( final UsuarioEntity usuarioEntity : usuarios) {
             if (usuarioEntity.getId() != null && usuarioEntity.getId().equals(Long.valueOf(id))) {
                 return usuarioEntity;
             }

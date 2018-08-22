@@ -35,6 +35,13 @@ public class MensagemEntity implements Serializable {
      */
     private UsuarioEntity usuarioEnvio;
 
+	/**
+	 * Usuario que enviou a mensagem
+	 */
+	private UsuarioEntity usuarioDestino;
+
+	private boolean lida;
+
     public Long getId() {
         return id;
     }
@@ -66,5 +73,21 @@ public class MensagemEntity implements Serializable {
     public void setUsuarioEnvio(final UsuarioEntity usuarioEnvio) {
         this.usuarioEnvio = usuarioEnvio;
     }
+
+	public UsuarioEntity getUsuarioDestino() {
+		return usuarioDestino;
+	}
+
+	public void setUsuarioDestino(final UsuarioEntity usuarioDestino) {
+		this.usuarioDestino = usuarioDestino;
+	}
+
+	public boolean isLida() {
+		return lida;
+	}
+
+	public void setLida(final boolean lida) {
+		this.lida = lida;
+	}
 
 }

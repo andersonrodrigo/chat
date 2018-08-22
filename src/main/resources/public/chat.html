@@ -1,65 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HotChat</title>
-    <link rel="stylesheet" href="/resources/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HotChat</title>
+<link rel="stylesheet" href="/resources/style.css">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-  <link rel="stylesheet"
-  href="/resources/bootstrap.min.css"
-   >  <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="/resources/jquery-3.3.1.slim.min.js"
-   ></script>
-<script
-  src="/resources/popper.min.js"
-   ></script>
-<script
-  src="/resources/bootstrap.min.js"
-   ></script>
-<script
-  src="/resources/jquery.min.js"></script>
- 
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="/resources/bootstrap.min.css">
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="/resources/jquery-3.3.1.slim.min.js"></script>
+<script src="/resources/popper.min.js"></script>
+<script src="/resources/bootstrap.min.js"></script>
+<script src="/resources/jquery.min.js"></script>
+</head>
+<body>
+	<div id="instrucoes">Selecione algum contato para iniciar uma
+		conversa...</div>
+	<div>
+		Bem vindo,
+		<h1>
+			<span id="usuario" />
+			<h1>
+	</div>
+	<div onclick="document.location = 'index.html'" id="sair">Sair</div>
 
-  </head>
+	<div id="chatControls">
+		<div>
+			Enviar mensagem para: <span id="usuarioDestino" />
+		</div>
+		<input id="message" placeholder="Escreva sua Mensagem">
+		<button id="send">Enviar</button>
+	</div>
+	<div>
+		<div class="listaUsuarios">Lista de contatos :</div>
+		<ul id="userlist">
+			<!-- Built by JS -->
+		</ul>
+	</div>
 
-  <body>
-    
-
-<div id="instrucoes">
-Selecione algum contato para iniciar uma conversa...
-</div>
-      <div>Bem vindo, <span id="usuario"/></div>
-        <div onclick="document.location = 'index.html'" id="sair">Sair</div>
-      
-				<div id="chatControls">
-			 <div>Enviar mensagem para: <span id="usuarioDestino"/></div>
-					<input id="message" placeholder="Escreva sua Mensagem">
-					<button id="send">Enviar</button>
-				</div>
-				<div>
-				<div class="listaUsuarios">Lista de contatos OnLine:</div>
-					<ul id="userlist">
-						<!-- Built by JS -->
-					</ul>
-				</div>
-			 
-			 
-			 <div class="listaUsuariosAll">Lista de Todos Contatos:</div>
-          <ul id="userlistAll">
-            <!-- Built by JS -->
-          </ul>
-        </div>
-			 
-				<div id="chat">
-					<!-- Built by JS -->
-				</div>
-				<script src="websocketDemo.js"></script>
-			 
-    
-
-</body></html>
+	<div id="chat">
+		<!-- Built by JS -->
+	</div>
+	<script src="websocketDemo.js"></script>
+</body>
+</html>

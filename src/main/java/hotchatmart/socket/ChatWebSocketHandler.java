@@ -17,147 +17,182 @@ import hotchatmart.entity.MensagemEntity;
 import hotchatmart.entity.UsuarioEntity;
 import hotchatmart.service.UsuarioService;
 
+/**
+ * Classe para configurar o Socket
+ * 
+ * @author andersonaugustorodrigosilva
+ *
+ */
 @WebSocket
 public class ChatWebSocketHandler {
 
 
-    private static List<MensagemEntity> listaMensagens = new ArrayList<MensagemEntity>();
     private static Map<String, List<MensagemEntity>> listaMensagemUsuario =
-        new HashMap<String, List<MensagemEntity>>();
+			new HashMap<String, List<MensagemEntity>>();// Map com as mensagens do usuario
 
+	/**
+	 * Metodo chamado ao conectar no websocket, nesse momento vejo se temos 100
+	 * usurios simultaneos e verifico se existem mensagens off line para enviar para
+	 * a tela
+	 * 
+	 * @param sess
+	 * @throws Exception
+	 */
     @OnWebSocketConnect
-    public void onConnect(final Session sess) throws Exception {
-        final String token =
-            sess.getUpgradeRequest().getRequestURI().toString().substring(
-                sess.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
-                sess.getUpgradeRequest().getRequestURI().toString().length());
-        final UsuarioEntity usuarioEntity = UsuarioService.recuperaUsuarioByToken(token);
-        Chat.nextUserNumber++;
-        Chat.userUsernameMap.put(sess, usuarioEntity.getId() + "|" + usuarioEntity.getNome());
-        if (Chat.nextUserNumber < 100) {
-            enviaMensagem(sess, usuarioEntity, "Servidor diz: ", (usuarioEntity.getNome() + " Conectado"),
-                true, "1");
-            // verificaMensagensOffLine(sess, usuarioEntity);
-        } else {
-
-        }
-
+    public void onConnect( final Session sess) throws Exception {
+		final String token = sess.getUpgradeRequest().getRequestURI().toString().substring(
+				sess.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
+				sess.getUpgradeRequest().getRequestURI().toString().length());
+		final UsuarioEntity usuarioEntity = UsuarioService.recuperaUsuarioByToken(token);
+		if (Chat.userUsernameMap.size() >= 100) {
+			throw new Exception("Número de Usuário simultaneos ultrapassado!");
+		} else {
+			Chat.userUsernameMap.put(sess, usuarioEntity.getId() + "|" + usuarioEntity.getNome());
+			enviaMensagem(sess, usuarioEntity, "Servidor diz: ", (usuarioEntity.getNome() + " Conectado"), false, "1");
+			verificaMensagensOffLine(sess, usuarioEntity);
+		}
     }
 
 
-    /**
-     * 
-     * @param usuarioEntity
-     */
-    private void verificaMensagensOffLine(final Session user, final UsuarioEntity usuarioEntity) {
-       
-        final List<MensagemEntity> listaMensagensRecebidasUsuario =
-            listaMensagemUsuario.get(usuarioEntity.getLogin());
-        final List<MensagemEntity> listaClonada1 =
-            new ArrayList<MensagemEntity>(listaMensagensRecebidasUsuario);
-        final List<MensagemEntity> listaClonada2 = new ArrayList<MensagemEntity>(listaMensagens);
-        for (final MensagemEntity mensagemUsuario : listaClonada2) {
-            boolean achouMensagem = false;
-            for (final MensagemEntity mensagemEntity : listaClonada1) {
-                if (mensagemEntity.getId().intValue() == mensagemUsuario.getId().intValue()) {
-                    achouMensagem = true;
-                }
-            }
-            if (!achouMensagem) {
-                Chat.enviaMensageDireta(mensagemUsuario.getUsuarioEnvio().getNome(),
-                    mensagemUsuario.getTexto() + " (Enviado as " +
-                        new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-                            .format(mensagemUsuario.getData()) +
-                        "')",
-                    usuarioEntity.getNome(), "3");
+	/**
+	 * Metodo para enviar as mensagens off Line
+	 * 
+	 * @param user
+	 * @param usuarioEntity
+	 */
+    private void verificaMensagensOffLine( final Session user,  final UsuarioEntity usuarioEntity) {
+		final List<MensagemEntity> listaMensagensRecebidasUsuario = listaMensagemUsuario.get(usuarioEntity.getLogin());
+		if (listaMensagensRecebidasUsuario != null) {
+			for (final MensagemEntity mensagemUsuario : listaMensagensRecebidasUsuario) {
+				if (!mensagemUsuario.isLida()) {
+					enviaMensageDireta(
+							mensagemUsuario.getUsuarioEnvio().getId() + "|"
+									+ mensagemUsuario.getUsuarioEnvio().getNome(),
+							mensagemUsuario.getTexto() + " (Enviado as "
+									+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(mensagemUsuario.getData())
+									+ "')",
+							mensagemUsuario.getUsuarioDestino().getId() + "|"
+									+ mensagemUsuario.getUsuarioDestino().getNome(),
+							false, null, null);
+					mensagemUsuario.setLida(true);
 
-            }
-
-        }
-
+				}
+			}
+		}
     }
 
+	/**
+	 * Metodo chamado quando o websocket é desconetado
+	 * 
+	 * @param sess
+	 * @param statusCode
+	 * @param reason
+	 */
     @OnWebSocketClose
-    public void onClose(final Session sess, final int statusCode, final String reason) {
-        final String username = Chat.userUsernameMap.get(sess);
+    public void onClose( final Session sess,  final int statusCode,  final String reason) {
+         final String username = Chat.userUsernameMap.get(sess);
         Chat.userUsernameMap.remove(sess);
-        final String token =
+         final String token =
             sess.getUpgradeRequest().getRequestURI().toString().substring(
                 sess.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
                 sess.getUpgradeRequest().getRequestURI().toString().length());
-        final UsuarioEntity usuarioEntity = UsuarioService.recuperaUsuarioByToken(token);
-        enviaMensagem(sess, usuarioEntity, "Servidor diz: ", (username + " Saiu"), true, "2");
-        // Chat.broadcastMessage(sender = "Servidor", msg = (username + " Saiu"));
+         final UsuarioEntity usuarioEntity = UsuarioService.recuperaUsuarioByToken(token);
+		enviaMensagem(sess, usuarioEntity, "Servidor diz: ", (username + " Saiu"), false, "2");
+
     }
 
+	/**
+	 * Metodo chamado para enviar mensagem no socket
+	 * 
+	 * @param sess:
+	 *            Sessao do websocket
+	 * @param message:
+	 *            Mensagem Enviada
+	 */
     @OnWebSocketMessage
-    public void onMessage(final Session sess, final String message) {
-        // Chat.broadcastMessage(sender = Chat.userUsernameMap.get(user), msg = message);
-        final String userEnvio = Chat.userUsernameMap.get(sess);
-        final String userDestino = message.split("\\|")[0];
-        final String token =
-            sess.getUpgradeRequest().getRequestURI().toString().substring(
-                sess.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
-                sess.getUpgradeRequest().getRequestURI().toString().length());
-        final UsuarioEntity usuarioEntityEnvio = UsuarioService.recuperaUsuarioByToken(token);
-        final UsuarioEntity usuarioEntityDestino = UsuarioService.recuperaUsuarioById(userDestino);
-        enviaMensageDireta(userEnvio, message.split("\\|")[1],
-            usuarioEntityDestino.getId() + "|" + usuarioEntityDestino.getNome(), false, usuarioEntityEnvio);
+    public void onMessage( final Session sess,  final String message) {
+		final String userEnvio = Chat.userUsernameMap.get(sess);
+		final String userDestino = message.split("\\|")[0];
+		final String token = sess.getUpgradeRequest().getRequestURI().toString().substring(
+				sess.getUpgradeRequest().getRequestURI().toString().indexOf("?token=") + 7,
+				sess.getUpgradeRequest().getRequestURI().toString().length());
+		final UsuarioEntity usuarioEntityEnvio = UsuarioService.recuperaUsuarioByToken(token);
+		final UsuarioEntity usuarioEntityDestino = UsuarioService.recuperaUsuarioById(userDestino);
+		enviaMensageDireta(userEnvio, message.split("\\|")[1],
+				usuarioEntityDestino.getId() + "|" + usuarioEntityDestino.getNome(), true, usuarioEntityEnvio,
+				usuarioEntityDestino);
     }
 
-    /**
-     * 
-     * @param userEnvio
-     * @param textoMensagem
-     * @param userDestino
-     * @param armazena
-     * @param usuarioEnvio
-     */
-    private void enviaMensageDireta(final String userEnvio,
-                                    final String textoMensagem,
-                                    final String userDestino,
-                                    final boolean armazena,
-                                    final UsuarioEntity usuarioEnvio) {
-        final MensagemEntity mensagem = new MensagemEntity();
-        Chat.enviaMensageDireta(userEnvio, textoMensagem, userDestino, "3");
-        if (armazena) {
-            mensagem.setData(new Date());
-            mensagem.setTexto(textoMensagem);
-            mensagem.setUsuarioEnvio(usuarioEnvio);
-            mensagem.setId(System.currentTimeMillis());
-            listaMensagens.add(mensagem);
+	/**
+	 * MEtodo chamado para enviar a mensagem para algum usuario
+	 * 
+	 * @param userEnvio:
+	 *            Identificador do usuario na sessao do socket
+	 * @param textoMensagem:
+	 *            Texto que será enviado
+	 * @param userDestino:
+	 *            Usuário de destino da mensagem
+	 * @param armazena:
+	 *            Se a mensagem será armazenada ou nao.
+	 * @param usuarioEnvio:
+	 *            Usuario que envia a mensagem
+	 * @param usuarioDestino:
+	 *            Usuario que sera enviada a mensagem
+	 */
+    private void enviaMensageDireta( final String userEnvio,
+			final String textoMensagem, final String userDestino, final boolean armazena,
+			final UsuarioEntity usuarioEnvio, final UsuarioEntity usuarioDestino) {
+		final MensagemEntity mensagem = new MensagemEntity();
+		Chat.enviaMensageDireta(userEnvio, textoMensagem, userDestino, "3");
+		if (armazena) {
+			mensagem.setData(new Date());
+			mensagem.setTexto(textoMensagem);
+			mensagem.setUsuarioEnvio(usuarioEnvio);
+			mensagem.setUsuarioDestino(usuarioDestino);
+			mensagem.setId(System.currentTimeMillis());
+			mensagem.setLida(false);
 
-            List<MensagemEntity> listaMensagens = listaMensagemUsuario.get(usuarioEnvio.getLogin());
-            if (listaMensagens == null) {
-                listaMensagens = new ArrayList<MensagemEntity>();
-            }
-            listaMensagens.add(mensagem);
-            listaMensagemUsuario.put(usuarioEnvio.getLogin(), listaMensagens);
-        }
+			List<MensagemEntity> listaMensagens = listaMensagemUsuario.get(usuarioDestino.getLogin());
+			if (listaMensagens == null) {
+				listaMensagens = new ArrayList<MensagemEntity>();
+			}
+			listaMensagens.add(mensagem);
+			listaMensagemUsuario.put(usuarioDestino.getLogin(), listaMensagens);
+		}
 
     }
 
 
-    /**
-     * Metodo para arnazenar a mensagem enviada
-     * 
-     * @param usuarioEntity
-     * @param mensagem
-     */
-    private void enviaMensagem(final Session sess,
-                               final UsuarioEntity usuarioEntity,
-                               final String enviadoPor,
-                               final String textoMensagem,
-                               final boolean armazena,
-                               final String tipoMensagem) {
-        final MensagemEntity mensagem = new MensagemEntity();
-        Chat.broadcastMessage(enviadoPor, textoMensagem, tipoMensagem);
+	/**
+	 * Metodo chamado para enviar a mensagem
+	 * 
+	 * @param sess:
+	 *            Sessao do websocket
+	 * @param usuarioEntity:
+	 *            USuario que envia a mensagem
+	 * @param enviadoPor:
+	 *            Identificador da sessao do usuario de envio
+	 * @param textoMensagem:
+	 *            Texto enviado
+	 * @param armazena:
+	 *            Se armazena ou nao.
+	 * @param tipoMensagem:
+	 *            Tipo da Mensagem: 1:Conectou no servidor, 2: Desconectou 3:
+	 *            Mensagem Normal
+	 */
+    private void enviaMensagem( final Session sess,
+                                final UsuarioEntity usuarioEntity,
+                                final String enviadoPor,
+                                final String textoMensagem,
+                                final boolean armazena,
+                                final String tipoMensagem) {
+         final MensagemEntity mensagem = new MensagemEntity();
+        Chat.broadcastMessage(usuarioEntity, textoMensagem, tipoMensagem);
         if (armazena) {
             mensagem.setData(new Date());
             mensagem.setTexto(textoMensagem);
             mensagem.setUsuarioEnvio(usuarioEntity);
             mensagem.setId(System.currentTimeMillis());
-            listaMensagens.add(mensagem);
 
             List<MensagemEntity> listaMensagens = listaMensagemUsuario.get(usuarioEntity.getLogin());
             if (listaMensagens == null) {

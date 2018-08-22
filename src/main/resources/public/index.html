@@ -7,143 +7,16 @@
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <!-- Bootstrap CSS -->
-<link rel="stylesheet"
-	href="/resources/bootstrap.min.css"
-	 >
+<link rel="stylesheet" href="/resources/bootstrap.min.css">
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="/resources/jquery-3.3.1.slim.min.js"
-	 ></script>
-<script
-	src="/resources/popper.min.js"
-	 ></script>
-<script
-	src="/resources/bootstrap.min.js"
-	 ></script>
-<script
-	src="/resources/jquery.min.js"></script>
-
+<script src="/resources/jquery-3.3.1.slim.min.js"></script>
+<script src="/resources/popper.min.js"></script>
+<script src="/resources/bootstrap.min.js"></script>
+<script src="/resources/jquery.min.js"></script>
+<script src="appgeral.js"></script>
 <title>HotChat</title>
-<script>
 
-      
-							$('.alert').hide();
-							var urlBase = 'http://localhost:8081/'
-							function cadastrarUsuario() {
-
-								if ($('#senhaCadastro').val() != $('#senhaCadastro2').val()) {
-									alert('Senhas não conferem.')
-								} else {
-									$.post(urlBase + 'api/user', {
-						                  nome : $('#nomeCadastro').val(),
-						                  login : $('#loginCadastro').val(),
-						                  senha : $('#senhaCadastro').val()
-						                }, function(data, status) {
-						                	if (data){
-						                		if (data == 'sucesso'){
-						                		 $('#btnFechaPopup').click()
-					                      alert('Cadastrado com sucesso!')
-					                       limpaTela()
-					                      }else{
-					                    	  alert(data)
-					                      }
-									
-						                	}else{
-						                		 alert('Erro ao Cadastrar!')
-						                	}
-						                 
-						                });
-									
-								}
-							}
-
-							function fazLogin() {
-								$.post(urlBase + 'api/user/login', {
-									login : $('#login').val(),
-									senha : $('#senha').val()
-								}, function(data, status) {
-									if (data) {
-										store.setItem('usuarioId', data.id);
-										store.setItem('usuarioNome', data.nome);
-										store.setItem('token', data.token);
-										document.location = 'chat.html' 
-									} else {
-										alert('Senhas não conferem...')
-									}
-								});
-							}
-							
-							function limpaTela(){ 
-							$('#nomeCadastro').val(''),
-               $('#loginCadastro').val(''),
-               $('#senhaCadastro').val('')
-                $('#senhaCadastro2').val('')
-							}
-               
-							
-						      function storageFactory(storage) {
-						          let inMemoryStorage = {}; 
-
-						          function isSupported() {
-						            try {
-						              const key = "__some_random_key_you_are_not_going_to_use__";
-						              storage.setItem(key, key);
-						              storage.removeItem(key);
-						              return true;
-						            } catch (e) {
-						              return false;
-						            }
-						          }
-
-						          function getItem(key) {
-						            if (isSupported()) {
-						              return storage.getItem(key);
-						            }
-						            return inMemoryStorage[key] || null;
-						          }
-
-						          function setItem(key, value) {
-						            if (isSupported()) {
-						              storage.setItem(key, value);
-						            } else {
-						              inMemoryStorage[key] = value;
-						            }
-						          }
-
-						          function removeItem(key) {
-						            if (isSupported()) {
-						              storage.removeItem(key);
-						            } else {
-						              delete inMemoryStorage[key];
-						            }
-						          }
-
-						          function clear(key) {
-						            if (isSupported()) {
-						              storage.clear();
-						            } else {
-						              inMemoryStorage = {};
-						            }
-						          }
-						          
-						          function key(n) {
-						            if (isSupported()) {
-						              return storage.key(n);
-						            } else {
-						               return Object.keys(inMemoryStorage)[n] || null;
-						            }
-						          }
-
-						          return {
-						            getItem,
-						            setItem,
-						            removeItem,
-						            clear,
-						            key,
-						          };
-						        }
-						       var store = storageFactory(localStorage);
-						</script>
 </head>
 <body>
 	<h1 align="center">Bem Vindo</h1>
@@ -187,14 +60,16 @@
 					</div>
 					<div class="modal-body">
 						<div class="form-group">
-							<input type="text" required class="form-control"
+							   <input type="text" required class="form-control"
 								id="nomeCadastro" aria-describedby="emailHelp"
-								placeholder="Nome"> <br /> <input type="email" required
+								placeholder="Nome"> <br /> 
+								<input type="email" required
 								class="form-control" id="loginCadastro"
 								aria-describedby="emailHelp" placeholder="Login"> <br />
-							<input type="password" required class="form-control"
+							  <input type="password" required class="form-control"
 								id="senhaCadastro" aria-describedby="emailHelp"
-								placeholder="Senha"> <br /> <input type="password"
+								placeholder="Senha"> <br /> 
+								<input type="password"
 								required class="form-control" id="senhaCadastro2"
 								aria-describedby="emailHelp" placeholder="Repita Senha">
 						</div>
